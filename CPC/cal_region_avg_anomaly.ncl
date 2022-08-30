@@ -16,8 +16,9 @@ begin
   var_clim_3d = conform_dims((/dimsizes(var_clim_1d),1,1/),var_clim_1d,0)
 
   var_3d =  calcDayAnomTLL (var_3d, yyyyddd, var_clim_3d) 
+  var_3d!0 = "time"
+  var_3d&time = time
   return(var_3d(:,0,0))    
-
 end 
 
 begin
