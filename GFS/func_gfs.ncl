@@ -8,11 +8,14 @@ begin
     var_name_long = "TMAX_P8_L103_GLL0_max"
   else if (var_name_short .eq. "apcp") then
     var_name_long = "APCP_P8_L1_GLL0_acc"
-  else if (var_name_short .eq. "csnow") then
+  else if (var_name_short .eq. "snow") then
     var_name_long = "CSNOW_P8_L1_GLL0_avg"
+  else if (var_name_short .eq. "tavg") then
+    var_name_long = "TMIN_P8_L103_GLL0_min"
   else 
     print("the "+ var_name_short + " is not supported")
     exit
+  end if
   end if
   end if
   end if
@@ -37,9 +40,12 @@ begin
     var_out = dim_max_n_Wrap(var,0)
   else if (func .eq. "sum") then
     var_out = dim_sum_n_Wrap(var,0)
+  else if (func .eq. "avg") then
+    var_out = dim_avg_n_Wrap(var,0)
   else 
      print("the "+ func + " is not supported")
      exit
+  end if
   end if
   end if
   end if
@@ -73,7 +79,7 @@ fcst_hhs := sprinti("%0.3i", fcst_hhs)
 fcst_days = ispan(0,15,1)
 
 start_hhs = (/"00","06","12","18"/)
-fcst_days_hh_idx = new((/4,dimsizes(fcst_days),4/),string)
+fcst_days_hh_idx = new((/4,dimsizes(fcst_days),4/),integer)
 do i = 0,dimsizes(start_hhs) - 1
     fcst_hhs_use := ispan(0,dimsizes(fcst_hhs)-1,1)
   if (i .gt. 0) then

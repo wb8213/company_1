@@ -19,7 +19,6 @@ export -f get_current_hh
 ########################################
 
 export dir_in="/home/wubo/GFS/download/"
-export dir_out="/home/wubo/GFS/region_avg/"
 export dir_mask="/home/wubo/mask/GFS_0p50/"
 
 export file_climatology=""
@@ -36,11 +35,17 @@ if [ ! -n "$hh" ] ; then
   export hh=$hh_current 
 fi
 echo $yyyymmdd $hh 'is running'
+export dir_out="/home/wubo/GFS/region_avg/"${yyyymmdd}_${hh}
+if [ ! -d "${dir_out}" ] ; then
+  mkdir $dir_out
+fi
 
-vars=('tmax' 'tmin' 'apcp' 'csnow')
+vars=( 'tmax' 'tmin' 'apcp' 'csnow' 'tavg')
+funcs=('max'  'min'  'sum'  'sum'   'avg')
 ############cal original time series ####################
-for var in ${vars[@]} ; do
-  export var=$var
+for ((i=0; i<${#vars[@]}; i++)) ; do
+  export var=${vars[$i]}
+  export func=${funcs[$i]} 
   if [ ! -d ${dir_out}/${yyyymmdd} ] ; then
     mkdir ${dir_out}/${yyyymmdd}
   fi
