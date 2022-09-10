@@ -1,6 +1,24 @@
 load "$NCARG_ROOT/lib/ncarg/nclscripts/csm/diagnostics_cam.ncl"
 load "./shapefile_utils.ncl"
 load "./func_get_shpnames_shpxx_box.ncl"
+load "$NCARG_ROOT/lib/ncarg/nclscripts/wrf/WRFUserARW.ncl"
+
+undef("find_one_point_nearest_to_shape")
+function find_one_point_nearest_to_shape(model_lat_2d:numeric,model_lon_2d:numeric,lat_shp_1d:numeric,lon_shp_1d:numeric)
+local idx, n_shp_point, i, np, np_max_idx,point
+begin
+  idx = wrf_latlon_to_ij(model_lat_2d,model_lon_2d,lat_shp_1d,lon_shp_1d)
+  n_shp_point = dimsizes(lat_shp_1d)
+  np = new(n_shp_point,integer)
+  do i = 0, n_shp_point - 1
+    np(i) = num( idx(i,0).eq.idx(:,0) .and. idx(i,1).eq.idx(:,1) )
+  end do
+  np_max_idx = maxind(np) 
+  point = new(2,typeof(model_lat_2d))
+  point(0) = model_lat_2d(idx(np_max_idx,0),idx(np_max_idx,1))
+  point(1) = model_lon_2d(idx(np_max_idx,0),idx(np_max_idx,1))
+  return(point)
+end
 
 undef("getmask")
 procedure getmask(region:string,reg_lab:string,lat:numeric,lon:numeric,\
@@ -123,18 +141,21 @@ do ishp = 0, nshp -1
     end if
   end do
 
-  mask_out              := new((/npts_in,2/), float)
-
-  ipt_in                = 0
-
-  do ipt = 0, npts - 1
-    inout              = gc_inout(ylat1d(ipt), xlon1d(ipt), lat_shp, lon_shp) 
-    if(inout) then
-      mask_out(ipt_in,0) = ylat1d(ipt)
-      mask_out(ipt_in,1) = xlon1d(ipt)
-      ipt_in          = ipt_in + 1
-    end if
-  end do
+  if (npts_in .eq. 0) then    ; no points fall in the regions
+    mask_out              := new((/1,2/), float)
+    mask_out(0,:) = find_one_point_nearest_to_shape(ylat,xlon,lat_shp,lon_shp)
+  else
+    mask_out              := new((/npts_in,2/), float)
+    ipt_in                = 0
+    do ipt = 0, npts - 1
+      inout              = gc_inout(ylat1d(ipt), xlon1d(ipt), lat_shp, lon_shp) 
+      if(inout) then
+        mask_out(ipt_in,0) = ylat1d(ipt)
+        mask_out(ipt_in,1) = xlon1d(ipt)
+        ipt_in          = ipt_in + 1
+      end if
+    end do
+  end if
   mask_out!0 = "point_"+ishpName
   mask_out!1 = "lat_lon"
 

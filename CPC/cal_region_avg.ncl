@@ -30,8 +30,6 @@ begin
   end if
   return(var)
 end 
-
-
 begin
 dir_in   = getenv("dir_in")
 dir_out  = getenv("dir_out")

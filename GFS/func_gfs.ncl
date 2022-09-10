@@ -61,6 +61,37 @@ begin
   return(snow)
 end  
 
+undef ("cal_yyyyddd_yyyymmdd") 
+function cal_yyyyddd_yyyymmdd(yyyymmdd_init:numeric,length:numeric)
+local yyyyddd_init, yyyyddds, yyyymmdds, i, yyyyddd, yyyy, ddd
+begin
+  yyyyddd_init = yyyymmdd_to_yyyyddd(yyyymmdd_init)
+  yyyyddds = ispan(yyyyddd_init,yyyyddd_init+length - 1,1)
+  yyyymmdds = new(length, integer)
+  do i = 0, length - 1
+    yyyyddd = yyyyddds(i)
+    yyyy = yyyyddd / 1000
+    ddd = yyyyddd - yyyy*1000 
+    if (isleapyear(yyyy)) then 
+      if (ddd .gt. 366) then 
+        ddd = ddd - 366
+        yyyy = yyyy + 1
+      end if
+    else
+      if (ddd .gt. 365) then 
+        ddd = ddd - 365
+        yyyy = yyyy + 1
+      end if
+    end if
+    yyyyddds(i) = yyyy*1000 + ddd 
+    yyyymmdds(i) = yyyy*10000 + monthday(yyyy,ddd)
+  end do
+  return([/yyyyddds, yyyymmdds/])
+
+end 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 begin
 fcst_hhs = (/   6,  12,  18,  24,  30, \
                36,  42,  48,  54,  60, \

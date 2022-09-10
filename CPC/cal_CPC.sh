@@ -17,7 +17,7 @@ export dir_in="/home/wubo/CPC/download/"
 export dir_out="/home/wubo/CPC/region_avg/"
 export dir_mask="/home/wubo/mask/CPC_x050/"
 
-export climatology_years='1991 2020' 
+export climatology_years='2012 2021' 
 
 vars=('precip' 'tmax' 'tmin')
 region_infos=('CHN state' \
@@ -55,7 +55,7 @@ for var in ${vars[@]} ; do
     export year=$year
     for region_info in "${region_infos[@]}" ; do
       export region_info="${region_info}"
-#      ncl ./cal_region_avg.ncl 
+      ncl ./cal_region_avg.ncl 
     done
   done
 done
@@ -65,7 +65,7 @@ if [ "$run_mode" == "full_year" ] ; then
     export var=$var
     for region_info in "${region_infos[@]}" ; do
       export region_info="${region_info}"
-#      ncl ./cal_region_avg_climatology.ncl
+      ncl ./cal_region_avg_climatology.ncl
     done
   done   
 fi

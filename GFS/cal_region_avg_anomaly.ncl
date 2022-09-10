@@ -10,6 +10,9 @@ begin
   dir_in=getenv("dir_in")
   dir_out=getenv("dir_out")
   dir_mask=getenv("dir_mask")
+  
+  clim_dir =getenv("dir_climatology")
+  clim_file=getenv("clim_file")
 
   files=dir_in+yyyymmdd+"/"+yyyymmdd+"_Z"+start_hh+ "_"+fcst_hhs+"_0p50.grb"
   nfiles = dimsizes(files) 
@@ -50,6 +53,7 @@ begin
       tmp(i,:,:) = f->$var_name_long$
     end do
     var := get_snow(var,tmp)
+    delete(tmp)
   end if
 ;;;;;;;;;;;;;;for tavg;;;;;;;;;;;;;;;;;;;;
   if (var_name .eq. "tavg") then
@@ -62,6 +66,7 @@ begin
     var := (var + tmp)/2.
     var = var - 273.15
     var@units = "degC"
+    delete(tmp)
   end if
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
 
@@ -74,6 +79,10 @@ begin
   to_day_idx = fcst_days_hh_idx(ind(start_hh .eq. start_hhs),:,:)
   dsizes = dimsizes(to_day_idx)
   ndays = dsizes(0)
+  tmp = cal_yyyyddd_yyyymmdd(stringtointeger(yyyymmdd),ndays)
+  yyyyddds = tmp[0]
+  yyyymmdds= tmp[1]
+
   var_day = new((/ndays,nlat,nlon/),typeof(var))
   do i = 0, ndays - 1
     if (any(ismissing(to_day_idx(i,:)))) then
@@ -85,14 +94,21 @@ begin
   var_day!0 = "time"
   var_day!1 = "lat"
   var_day!2 = "lon"
-  var_day&time = ispan(stringtointeger(yyyymmdd),stringtointeger(yyyymmdd)+15,1)
+  var_day&time = yyyymmdds
   var_day&lat = lat
   var_day&lon = lon
+
+  fclim = addfile(clim_dir+clim_file,"r")
+  var_day_clim = fclim->$var_name$
+  
+  var_day =  calcDayAnomTLL (var_day, yyyyddds, var_day_clim) 
+  var_day!0 = "time"
+  var_day&time = yyyymmdds
   
   do i = 0,dimsizes(region_infos)-1 
     region_info := str_split(region_infos(i), " ")
     file_mask = dir_mask + "/GFS_0p50_" + region_info(0) + "_" + region_info(1) +".nc"
-    file_out = dir_out + "/" + var_name + "_" + region_info(0) + "_"+region_info(1) +".nc"
+    file_out = dir_out + "/" + var_name + "_" + region_info(0) + "_"+region_info(1) +"_anomaly.nc"
 
     tmp := get_shpnames_shpxx_box(region_info(0))
     shpNames := tmp[0]
@@ -112,5 +128,5 @@ begin
     end do
 
   end do  
-  
+
 end 

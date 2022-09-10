@@ -13,6 +13,7 @@ get_current_hh() {
   hh=`ls  ${dir_in}${yyyymmdd}/*_*_*.grb | awk 'END {print}' | sed 's/.*_Z//' | sed 's/_.*.grb//g' `
   echo $hh
 }
+
 export -f get_current_yyyymmdd
 export -f get_current_hh
 
@@ -20,8 +21,7 @@ export -f get_current_hh
 
 export dir_in="/home/wubo/GFS/download/"
 export dir_mask="/home/wubo/mask/GFS_0p50/"
-
-export file_climatology=""
+export dir_climatology="/home/wubo/CFSR/climatology/"
 
 yyyymmdd=$1
 hh=$2
@@ -40,14 +40,28 @@ if [ ! -d "${dir_out}" ] ; then
   mkdir $dir_out
 fi
 
-vars=( 'tmax' 'tmin' 'apcp' 'csnow' 'tavg')
-funcs=('max'  'min'  'sum'  'sum'   'avg')
 ############cal original time series ####################
-for ((i=0; i<${#vars[@]}; i++)) ; do
-  export var=${vars[$i]}
-  export func=${funcs[$i]} 
-  if [ ! -d ${dir_out}/${yyyymmdd} ] ; then
-    mkdir ${dir_out}/${yyyymmdd}
-  fi
-  ncl ./cal_region_avg.ncl 
-done
+vars=( 'tmax' 'tmin' 'apcp' 'snow' 'tavg')
+funcs=('max'  'min'  'sum'  'sum'  'avg')
+run_func(){
+    export var=$1
+    export func=$2
+    ncl ./cal_region_avg.ncl 
+}
+export -f run_func
+parallel -j 3 --link run_func ::: ${vars[@]} ::: ${funcs[@]} 
+unset run_func
+############cal anomaly #################################
+vars=('tmax' 'tmin' 'apcp' 'snow' 'tavg')
+funcs=('max'  'min'  'sum'  'sum'  'avg')
+clim_files=('tmax_2012-2021.nc' 'tmin_2012-2021.nc' 'apcp_2012-2021.nc' 'snow_2012-2021.nc' 'tavg_2012-2021.nc')
+run_func(){
+    export var=$1
+    export func=$2
+    export clim_file=$3
+    ncl ./cal_region_avg_anomaly.ncl 
+}
+export -f run_func
+parallel -j 3 --link run_func ::: ${vars[@]} ::: ${funcs[@]} ::: ${clim_files[@]}
+unset run_func
+
