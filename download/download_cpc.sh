@@ -48,7 +48,7 @@ year=`date +"%Y" -d "-1 days"`
 download_path='/home/wubo/CPC/download/'
 
 max_processes=3
-logfile="${download_path}/out.`date +"%Y%m%d%H"`.log"
+logfile="/home/wubo/script/run/log.txt"
 
 remote_files=("ftp://ftp.cdc.noaa.gov/Projects/Datasets/cpc_global_precip/precip.${year}.nc" \
               "ftp://ftp.cdc.noaa.gov/Projects/Datasets/cpc_global_temp/tmin.${year}.nc"     \
@@ -95,7 +95,7 @@ while true ; do
     sleep 1800s
     continue
   else
-    echo ${file_status[@]} "today download finished"
+    echo "CPC download for ${new_last_dates[0]} has finished at" `date "+%Y-%m-%d %H:%M:%S"`>> ${logfile}
     break
   fi
 

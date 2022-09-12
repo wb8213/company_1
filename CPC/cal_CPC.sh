@@ -18,6 +18,7 @@ export dir_out="/home/wubo/CPC/region_avg/"
 export dir_mask="/home/wubo/mask/CPC_x050/"
 
 export climatology_years='2012 2021' 
+logfile="/home/wubo/script/run/log.txt"
 
 vars=('precip' 'tmax' 'tmin')
 region_infos=('CHN state' \
@@ -82,5 +83,8 @@ for var in ${vars[@]} ; do
   done
 done
 
+if [ "$run_mode" == "last_year" ] ; then
+  echo "CPC calculation for ${last_year} has finished at" `date "+%Y-%m-%d %H:%M:%S"`>> ${logfile}
+fi
 exit
 

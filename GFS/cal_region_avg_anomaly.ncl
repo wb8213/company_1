@@ -97,7 +97,7 @@ begin
   var_day&time = yyyymmdds
   var_day&lat = lat
   var_day&lon = lon
-
+  var_day@statistical_process_duration = "24 hours"
   fclim = addfile(clim_dir+clim_file,"r")
   var_day_clim = fclim->$var_name$
   

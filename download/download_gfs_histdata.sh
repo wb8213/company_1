@@ -126,14 +126,13 @@ fhrs=('006 012 018 024 030 036 042 048' \
 
 hours=(00 06 12 18)
 
-
-for date in `seq 20220828 1 20220830`  ; do
+for date in `seq 20220831 1 20220831`  ; do
   for hour in ${hours[@]} ; do
     
     for fhrs_group in "${fhrs[@]}" ; do
       echo ${fhrs_group}
       while true ; do
-        parallel -j ${max_processes} --joblog ${logfile} download_file ${date} ${hour}  ::: ${fhrs_group}
+        parallel -j ${max_processes} download_file ${date} ${hour}  ::: ${fhrs_group}
         status=`check_download_finished ${date} ${hour} "${fhrs_group}"`
         if [ "${status}" == 'DOWNLOAD UNFINISHED' ] ; then
           sleep 120s

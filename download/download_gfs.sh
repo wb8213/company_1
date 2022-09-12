@@ -114,7 +114,7 @@ export fsize_limit=700 #KB
 export res="0p50"
 export download_path="/home/wubo/GFS/download/"
 
-logfile="${download_path}/out.`date +"%Y%m%d%H"`.log"
+logfile='/home/wubo/script/run/log.txt'
 fhrs=('006 012 018 024 030 036 042 048' \
       '054 060 066 072 078 084 090 096' \
       '102 108 114 120 126 132 138 144' \
@@ -137,7 +137,7 @@ while true ; do
     for fhrs_group in "${fhrs[@]}" ; do
       echo ${fhrs_group}
       while true ; do
-        parallel -j ${max_processes} --joblog ${logfile} download_file ${date_current} ${hour_current}  ::: ${fhrs_group}
+        parallel -j ${max_processes} download_file ${date_current} ${hour_current}  ::: ${fhrs_group}
         status_current=`check_download_finished ${date_current} ${hour_current} "${fhrs_group}"`
         if [ "${status_current}" == 'DOWNLOAD UNFINISHED' ] ; then
           sleep 120s
@@ -148,6 +148,7 @@ while true ; do
         fi
       done
     done
+    echo "GFS download for ${date_current} ${hour_current} has finished at" `date "+%Y-%m-%d %H:%M:%S"` >> ${logfile} 
   else
     sleep 120s
   fi

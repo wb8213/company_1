@@ -88,7 +88,8 @@ begin
   var_day&time = ispan(stringtointeger(yyyymmdd),stringtointeger(yyyymmdd)+15,1)
   var_day&lat = lat
   var_day&lon = lon
-  
+  var_day@statistical_process_duration = "24 hours"
+
   do i = 0,dimsizes(region_infos)-1 
     region_info := str_split(region_infos(i), " ")
     file_mask = dir_mask + "/GFS_0p50_" + region_info(0) + "_" + region_info(1) +".nc"

@@ -23,8 +23,9 @@ export dir_in="/home/wubo/GFS/download/"
 export dir_mask="/home/wubo/mask/GFS_0p50/"
 export dir_climatology="/home/wubo/CFSR/climatology/"
 
-yyyymmdd=$1
-hh=$2
+export yyyymmdd=$1
+export hh=$2
+logfile="/home/wubo/script/run/log.txt"
 
 if [ ! -n "$yyyymmdd" ] ; then
   yyyymmdd_current=`get_current_yyyymmdd`
@@ -65,3 +66,5 @@ export -f run_func
 parallel -j 3 --link run_func ::: ${vars[@]} ::: ${funcs[@]} ::: ${clim_files[@]}
 unset run_func
 
+echo "GFS calculation for ${yyyymmdd} ${hh} has finished at" `date "+%Y-%m-%d %H:%M:%S"`>> ${logfile}
+exit
