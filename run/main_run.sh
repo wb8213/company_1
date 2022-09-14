@@ -56,9 +56,4 @@ sleep 60s
 done
 
 
-
-
-
-
-
 exit

@@ -83,7 +83,7 @@ while true ; do
   for (( i=0 ; i<${#local_files[@]} ; i=i+1 )) ; do
     new_last_dates[$i]="`get_file_lastdate ${local_files[$i]}`"
 
-    if [ "${new_last_dates[$i]}" != "${last_dates[$i]}" ] ; then
+    if [ "${new_last_dates[$i]}" != "${last_dates[$i]}" ] && [ "${new_last_dates[$i]}" != "" ] ; then
       file_status[$i]="updated"
     else 
       file_status[$i]="not_updated"
